@@ -41,14 +41,13 @@ public class Collector extends SubsystemBase {
     tiltConfig.closedLoop.pid(CollectorConstants.cPTilt, CollectorConstants.cITilt, CollectorConstants.cDTilt);
     tiltConfig.closedLoop.positionWrappingEnabled(false);
 
-    //can use setDutyCycleRange instead I think
-    SoftLimitConfig tiltSoftLimit = new SoftLimitConfig();
-    tiltSoftLimit.forwardSoftLimitEnabled(true);
-    tiltSoftLimit.reverseSoftLimitEnabled(true);
-    tiltSoftLimit.forwardSoftLimit(CollectorConstants.collectorOut);
-    tiltSoftLimit.reverseSoftLimit(CollectorConstants.collectorIn);
+    // SoftLimitConfig tiltSoftLimit = new SoftLimitConfig();
+    // tiltSoftLimit.forwardSoftLimitEnabled(true);
+    // tiltSoftLimit.reverseSoftLimitEnabled(true);
+    // tiltSoftLimit.forwardSoftLimit(CollectorConstants.collectorOut);
+    // tiltSoftLimit.reverseSoftLimit(CollectorConstants.collectorIn);
 
-    tiltConfig.apply(tiltSoftLimit);
+    //tiltConfig.apply(tiltSoftLimit);
     tiltMotor.configure(tiltConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     //roller config
@@ -59,6 +58,7 @@ public class Collector extends SubsystemBase {
 
     //Through Bore Encoder Config
     tiltTBEncoder.setInverted(CollectorConstants.tiltTBEncoderInverted);
+    tiltTBEncoder.setDutyCycleRange(CollectorConstants.collectorIn, CollectorConstants.collectorOut);
 
     resetEncoders();
   }
@@ -80,6 +80,13 @@ public class Collector extends SubsystemBase {
 
   public void setRollerSpeed(double speed) {
     rollerMotor.set(speed);
+  }
+
+  public void setTilt(double position) {
+    if (position >= 0 && position <= 1) {
+      SparkClosedLoopController tiltController = tiltMotor.getClosedLoopController();
+      tiltController.setSetpoint(position, ControlType.kPosition);
+    }
   }
 
   public void stop() {

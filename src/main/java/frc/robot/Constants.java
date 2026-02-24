@@ -11,6 +11,12 @@ public class Constants {
     public static final double rotToRad = 2 * Math.PI;
 
     public class CollectorConstants {
+        //control bindings
+        public static final int collectorInButtonIndex = 0;
+        public static final int collectorOutButtonIndex = 0;
+        public static final int tiltToPosButtonIndex = 0;
+        public static final int tiltToPosAxisIndex = 4;
+
         //motor and encoder IDS
         public static final int tiltMotorID = 0;
         public static final int rollerMotorID = 0;
