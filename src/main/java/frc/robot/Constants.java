@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,6 +9,27 @@ public class Constants {
     public static final int kDriverControllerPort = 0;
 
     public static final double rotToRad = 2 * Math.PI;
+
+    public class CollectorConstants {
+        //motor and encoder IDS
+        public static final int tiltMotorID = 0;
+        public static final int rollerMotorID = 0;
+        public static final int tiltTBEncoderID = 0;
+
+        //inversions
+        public static final boolean tiltInverted = false;
+        public static final boolean rollerInverted = false;
+        public static final boolean tiltTBEncoderInverted = false;
+
+        //encoder offsets
+        public static double collectorIn = 0;
+        public static double collectorOut = 0;
+
+        //PID
+        public static double cPTilt = 1;
+        public static double cITilt = 0;
+        public static double cDTilt = 0;
+    }
 
     public class SwerveConstants {
         //control bindings
