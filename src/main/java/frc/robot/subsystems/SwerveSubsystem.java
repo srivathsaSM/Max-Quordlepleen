@@ -1,9 +1,5 @@
 package frc.robot.subsystems;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
@@ -59,6 +55,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
 
+  public boolean isFieldOriented = true;
+
   public final SwerveModulePosition[] zeroModulePositions = {
     new SwerveModulePosition(0,new Rotation2d(0)),
     new SwerveModulePosition(0,new Rotation2d(0)),
@@ -84,6 +82,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public double getHeading() {
     return Math.IEEEremainder(gyro.getAngle(), 360);
+  }
+
+  public void toggleFieldOriented() {
+    if (isFieldOriented) {
+      isFieldOriented = false;
+    } else {
+      isFieldOriented = true;
+    }
+    SmartDashboard.putBoolean("Field Oriented", isFieldOriented);
   }
 
   public Rotation2d getRotation2d() {
@@ -121,25 +128,22 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    SmartDashboard.putNumber("Robot Heading", getHeading());
+    // SmartDashboard.putNumber("Rot FR", frontRight.getAbsolutePositionRad());
+    // SmartDashboard.putNumber("Rot FL", frontLeft.getAbsolutePositionRad());
+    // SmartDashboard.putNumber("Rot BR", backRight.getAbsolutePositionRad());
+    // SmartDashboard.putNumber("Rot BL", backLeft.getAbsolutePositionRad());
 
-    SmartDashboard.putNumber("Rot FR", frontRight.getAbsolutePositionRad());
-    SmartDashboard.putNumber("Rot FL", frontLeft.getAbsolutePositionRad());
-    SmartDashboard.putNumber("Rot BR", backRight.getAbsolutePositionRad());
-    SmartDashboard.putNumber("Rot BL", backLeft.getAbsolutePositionRad());
+    // SmartDashboard.putNumber("State Radians FR: ", frontRight.getState().angle.getRadians());
+    // SmartDashboard.putNumber("Actual Radians FR: ", frontRight.getRotationPosition());
 
-    SmartDashboard.putNumber("State Radians FR: ", frontRight.getState().angle.getRadians());
-    SmartDashboard.putNumber("Actual Radians FR: ", frontRight.getRotationPosition());
+    // SmartDashboard.putNumber("State Radians FL: ", frontLeft.getState().angle.getRadians());
+    // SmartDashboard.putNumber("Actual Radians FL: ", frontLeft.getRotationPosition());
 
-    SmartDashboard.putNumber("State Radians FL: ", frontLeft.getState().angle.getRadians());
-    SmartDashboard.putNumber("Actual Radians FL: ", frontLeft.getRotationPosition());
+    // SmartDashboard.putNumber("State Radians BR: ", backRight.getState().angle.getRadians());
+    // SmartDashboard.putNumber("Actual Radians BR: ", backRight.getRotationPosition());
 
-    SmartDashboard.putNumber("State Radians BR: ", backRight.getState().angle.getRadians());
-    SmartDashboard.putNumber("Actual Radians BR: ", backRight.getRotationPosition());
-
-    SmartDashboard.putNumber("State Radians BL: ", backLeft.getState().angle.getRadians());
-    SmartDashboard.putNumber("Actual Radians BL: ", backLeft.getRotationPosition());
+    // SmartDashboard.putNumber("State Radians BL: ", backLeft.getState().angle.getRadians());
+    // SmartDashboard.putNumber("Actual Radians BL: ", backLeft.getRotationPosition());
 
     SwerveModulePosition[] modulePositions = {
       frontLeft.getModulePosition(),
@@ -151,7 +155,7 @@ public class SwerveSubsystem extends SubsystemBase {
     odometer.update(getRotation2d(), modulePositions);
 
     SmartDashboard.putNumber("Robot Heading: ", getHeading());
-    SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+    // SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
   }
 
   public void stopModules() {
@@ -159,6 +163,13 @@ public class SwerveSubsystem extends SubsystemBase {
     frontRight.stop();
     backLeft.stop();
     backRight.stop();
+  }
+
+  public void straightenAll() {
+    frontLeft.straighten();
+    frontRight.straighten();
+    backLeft.straighten();
+    backRight.straighten();
   }
 
   public SwerveModule[] getModules() {
@@ -174,32 +185,44 @@ public class SwerveSubsystem extends SubsystemBase {
     backRight.setDesiredState(desiredStates[3]);
   }
 
-  public void configureAutoBuilder() {
-    System.out.println("Configuring Auto Builder... ");
+  public void drive(double xSpeed, double ySpeed, double rotSpeed, boolean isFieldOriented) {
+    ChassisSpeeds speeds = isFieldOriented 
+    ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed, getRotation2d())
+    : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
+    
+    speeds = ChassisSpeeds.discretize(speeds, 0.02);
 
-    try {
-      RobotConfig config = RobotConfig.fromGUISettings();
+    SwerveModuleState[] states = SwerveConstants.driveKinematics.toSwerveModuleStates(speeds);
 
-      //configure autobuilder
-      AutoBuilder.configure(
-        this::getPose, //robot pose supplier
-        this::resetOdometry, //method to reset odometry
-        this::getRobotRelativeSpeeds, //robot relative ChassisSpeeds supplier
-        (speeds, feedforwards) -> driveRobotRelative(speeds), //drive the robot with chassis speeds and feedforwards
-        new PPHolonomicDriveController(
-          new PIDConstants(5.0, 0.0, 0.0), //translation PID
-          new PIDConstants(5.0, 0.0, 0.0)), //rotation PID
-        config, //robotconfig
-        () -> {
-          var alliance = DriverStation.getAlliance();
-          if (alliance.isPresent()) {
-            return alliance.get() == DriverStation.Alliance.Red;
-          }
-          return false;
-        },
-        this);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    setModuleStates(states);
   }
+
+  // public void configureAutoBuilder() {
+  //   System.out.println("Configuring Auto Builder... ");
+
+  //   try {
+  //     RobotConfig config = RobotConfig.fromGUISettings();
+
+  //     //configure autobuilder
+  //     AutoBuilder.configure(
+  //       this::getPose, //robot pose supplier
+  //       this::resetOdometry, //method to reset odometry
+  //       this::getRobotRelativeSpeeds, //robot relative ChassisSpeeds supplier
+  //       (speeds, feedforwards) -> driveRobotRelative(speeds), //drive the robot with chassis speeds and feedforwards
+  //       new PPHolonomicDriveController(
+  //         new PIDConstants(5.0, 0.0, 0.0), //translation PID
+  //         new PIDConstants(5.0, 0.0, 0.0)), //rotation PID
+  //       config, //robotconfig
+  //       () -> {
+  //         var alliance = DriverStation.getAlliance();
+  //         if (alliance.isPresent()) {
+  //           return alliance.get() == DriverStation.Alliance.Red;
+  //         }
+  //         return false;
+  //       },
+  //       this);
+  //   } catch (Exception e) {
+  //     e.printStackTrace();
+  //   }
+  // }
 }

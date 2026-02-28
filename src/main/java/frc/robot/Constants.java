@@ -6,73 +6,51 @@ import edu.wpi.first.math.util.Units;
 
 /** Add your docs here. */
 public class Constants {
-    public static final int kDriverControllerPort = 0;
+    public static final int kJoystickPort = 0;
+    public static final int kControllerPort = 1;
 
     public static final double rotToRad = 2 * Math.PI;
-
-    public class CollectorConstants {
-        //control bindings
-        public static final int collectorInButtonIndex = 0;
-        public static final int collectorOutButtonIndex = 0;
-        public static final int tiltToPosButtonIndex = 0;
-        public static final int tiltToPosAxisIndex = 4;
-
-        //motor and encoder IDS
-        public static final int tiltMotorID = 0;
-        public static final int rollerMotorID = 0;
-        public static final int tiltTBEncoderID = 0;
-
-        //inversions
-        public static final boolean tiltInverted = false;
-        public static final boolean rollerInverted = false;
-        public static final boolean tiltTBEncoderInverted = false;
-
-        //encoder offsets
-        public static double collectorIn = 0;
-        public static double collectorOut = 0;
-
-        //PID
-        public static double cPTilt = 1;
-        public static double cITilt = 0;
-        public static double cDTilt = 0;
-    }
 
     public class SwerveConstants {
         //control bindings
         public static final int driverXAxis = 0;
         public static final int driverYAxis = 1;
         public static final int driverRotAxis = 2;
-        public static final int driverFieldOrientedButtonIndex = 1;
+        public static final int sliderAxis = 3;
+        public static final int driverFieldOrientedButtonIndex = 4;
         public static final int zeroHeadingButtonIndex = 2;
+        public static final int straightenButtonIndex = 6;
+        public static final int strafeOnlyButtonIndex = 9;
+        public static final int invertedButtonIndex = 10;
 
         //swerve module controller and encoder IDs
-        public static final int backRightDriveID = 3;
-        public static final int backRightRotationID = 4;
-        public static final int backRightEncoderID = 40;
+        public static final int backRightDriveID = 1;
+        public static final int backRightRotationID = 2;
+        public static final int backRightEncoderID = 10;
         
-        public static final int backLeftDriveID = 1;
-        public static final int backLeftRotationID = 2;
-        public static final int backLeftEncoderID = 50;
+        public static final int backLeftDriveID = 3;
+        public static final int backLeftRotationID = 4;
+        public static final int backLeftEncoderID = 20;
 
-        public static final int frontRightDriveID = 7;
-        public static final int frontRightRotationID = 8;
+        public static final int frontRightDriveID = 5;
+        public static final int frontRightRotationID = 6;
         public static final int frontRightEncoderID = 30;
 
-        public static final int frontLeftDriveID = 5;
-        public static final int frontLeftRotationID = 6;
-        public static final int frontLeftEncoderID = 20;
+        public static final int frontLeftDriveID = 7;
+        public static final int frontLeftRotationID = 8;
+        public static final int frontLeftEncoderID = 40;
 
         //rotation encoder offsets (RADIANS)
-        public static final double backRightEncoderOffset = Units.rotationsToRadians(0.661);
-        public static final double backLeftEncoderOffset = Units.rotationsToRadians(0.197);
-        public static final double frontRightEncoderOffset = Units.rotationsToRadians(0.143);
-        public static final double frontLeftEncoderOffset = Units.rotationsToRadians(0.992);
+        public static final double backRightEncoderOffset = -0.426025 * Math.PI * 2;
+        public static final double backLeftEncoderOffset = -0.652100 * Math.PI * 2;
+        public static final double frontRightEncoderOffset = -0.456543  * Math.PI * 2;
+        public static final double frontLeftEncoderOffset = -0.482422  * Math.PI * 2;
 
         //drive motor reversed states
-        public static final boolean frontRightReversed = false;
-        public static final boolean backRightReversed = false;
+        public static final boolean frontRightReversed = true;
+        public static final boolean backRightReversed = true;
         public static final boolean frontLeftReversed = false;
-        public static final boolean backLeftReversed = false;
+        public static final boolean backLeftReversed = true;
 
         //rotation encoder reversed 
         public static final boolean frontRightAbsReversed = true;
@@ -86,10 +64,15 @@ public class Constants {
         public static final boolean frontLeftRotReversed = false;
         public static final boolean backLeftRotReversed = false;
 
-        //Swerve PID
-        public static final double kPRotation = 0.3;
+        //Swerve RotationPID
+        public static final double kPRotation = 0.2;
         public static final double kIRotation = 0;
         public static final double kDRotation = 0;
+
+        //Drive Motor FeedForwards
+        public static final double kSDrive = 0.2;
+        public static final double kVDrive = 2.5;
+        public static final double kADrive = 0.0;
 
         //swerve module hardware specifications
         public static final double wheelDiameterMeters = Units.inchesToMeters(4.0/1.0);
@@ -105,10 +88,6 @@ public class Constants {
         public static final double maxAngularSpeedRadPerSec = 3.5;
         public static final double driveMaxAccel = 3.0;
         public static final double angularMaxAccel = 4 * Math.PI;
-
-        //deadband
-        public static final double deadband = 0.15;
-        public static final double rotDeadband = 0.6;
 
         //distance between right and left wheels
         public static final double trackWidth = Units.inchesToMeters(22.66);

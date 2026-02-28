@@ -6,6 +6,7 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -30,7 +31,8 @@ public class SwerveModule extends SubsystemBase {
   private final double absoluteEncoderOffset;
   private final boolean absoluteEncoderInverted;
 
-  public SwerveModule(int driveMotorID, int rotationMotorID, int absoluteEncoderID, double absoluteEncoderOffset, boolean absoluteEncoderInverted, boolean driveMotorInverted, boolean rotationMotorInverted) {
+  public SwerveModule(int driveMotorID, int rotationMotorID, int absoluteEncoderID, 
+  double absoluteEncoderOffset, boolean absoluteEncoderInverted, boolean driveMotorInverted, boolean rotationMotorInverted) {
     //motors
     driveMotor = new SparkMax(driveMotorID, MotorType.kBrushless);
     rotationMotor = new SparkMax(rotationMotorID, MotorType.kBrushless);
@@ -44,6 +46,8 @@ public class SwerveModule extends SubsystemBase {
     SparkMaxConfig driveConfig = new SparkMaxConfig();
     driveConfig.inverted(driveMotorInverted);
     driveConfig.idleMode(IdleMode.kBrake);
+    driveConfig.closedLoop.pid(0.0, 0.0, 0.0);
+    driveConfig.closedLoop.feedForward.apply(new FeedForwardConfig().sva(SwerveConstants.kSDrive, SwerveConstants.kVDrive, SwerveConstants.kADrive));
     driveConfig.encoder.positionConversionFactor((Math.PI * SwerveConstants.wheelDiameterMeters)/SwerveConstants.driveMotorGearRatio);
     driveConfig.encoder.velocityConversionFactor((Math.PI * SwerveConstants.wheelDiameterMeters)/(60*SwerveConstants.driveMotorGearRatio));
     driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -55,19 +59,19 @@ public class SwerveModule extends SubsystemBase {
     rotationConfig.closedLoop.pid(SwerveConstants.kPRotation, SwerveConstants.kIRotation, SwerveConstants.kDRotation);
     rotationConfig.closedLoop.positionWrappingEnabled(true);
     rotationConfig.closedLoop.positionWrappingInputRange(-Math.PI, Math.PI);
-    rotationConfig.encoder.positionConversionFactor(2 * Math.PI/SwerveConstants.rotationMotorGearRatio);
+    rotationConfig.encoder.positionConversionFactor(2*Math.PI/SwerveConstants.rotationMotorGearRatio);
     rotationConfig.encoder.velocityConversionFactor(2*Math.PI/(60 * SwerveConstants.rotationMotorGearRatio));
     rotationMotor.configure(rotationConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     //CANcoder Config
-    MagnetSensorConfigs CANConfig = new MagnetSensorConfigs().withAbsoluteSensorDiscontinuityPoint(1.0);
-    absoluteEncoder.getConfigurator().apply(CANConfig);
+    // MagnetSensorConfigs CANConfig = new MagnetSensorConfigs().withAbsoluteSensorDiscontinuityPoint(1.0);
+    // absoluteEncoder.getConfigurator().apply(CANConfig);
 
     this.absoluteEncoderInverted = absoluteEncoderInverted;
     this.absoluteEncoderOffset = absoluteEncoderOffset;
 
-    //resetEncoders();
-    //straighten();
+    resetEncoders();
+    straighten();
   }
 
   public double getDrivePosition() {
