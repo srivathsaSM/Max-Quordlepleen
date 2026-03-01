@@ -2,18 +2,14 @@ package frc.robot.commands;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.SwerveSubsystem;
 
-/* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class SwerveJoystick extends Command {
   private final SwerveSubsystem swerveSubsystem;
   private final DoubleSupplier xSpdFunction, ySpdFunction, rotSpdFunction, sliderFunction;
@@ -36,11 +32,9 @@ public class SwerveJoystick extends Command {
     addRequirements(swerveSubsystem);
   }
 
-  // Called when the command is initially scheduled.
   @Override
   public void initialize() {}
 
-  // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     //get real time joystick inputs
@@ -73,28 +67,6 @@ public class SwerveJoystick extends Command {
     } else {
       swerveSubsystem.drive(xSpeed, ySpeed, rotSpeed, swerveSubsystem.isFieldOriented);
     }
-
-    //consider deleting this for drift problems (according to GPT)
-    // if (xSpeed == 0 && ySpeed == 0 && rotSpeed == 0) {
-    //   swerveSubsystem.stopModules();
-    //   return;
-    // }
-
-    // //constructs chassisSpeeds
-    // ChassisSpeeds chassisSpeeds;
-    // if (fieldOrientedFunction.getAsBoolean()) {
-    //   //relative to field 
-    //   chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed, swerveSubsystem.getRotation2d());
-    // } else {
-    //   //relative to robot
-    //   chassisSpeeds = new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
-    // }
-
-    // //convert chassis speeds to individual module states
-    // SwerveModuleState[] moduleStates = SwerveConstants.driveKinematics.toSwerveModuleStates(chassisSpeeds);
-
-    // //Output module states to wheels
-    // swerveSubsystem.setModuleStates(moduleStates);
   }
 
   @Override

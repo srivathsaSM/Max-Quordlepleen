@@ -24,14 +24,24 @@ public class RobotContainer {
     //twist is just twist
     
     //joystick default command
+    // swerveSubsystem.setDefaultCommand(new SwerveJoystick(
+    //   swerveSubsystem,
+    //   () -> joystick.getRawAxis(SwerveConstants.driverYAxis),
+    //   () -> -joystick.getRawAxis(SwerveConstants.driverXAxis),
+    //   () -> -joystick.getRawAxis(SwerveConstants.driverRotAxis),
+    //   () -> joystick.getRawAxis(SwerveConstants.sliderAxis),
+    //   () -> !joystick.getRawButton(SwerveConstants.strafeOnlyButtonIndex),
+    //   () -> !joystick.getRawButton(SwerveConstants.invertedButtonIndex)));
+
+    //controller
     swerveSubsystem.setDefaultCommand(new SwerveJoystick(
       swerveSubsystem,
-      () -> joystick.getRawAxis(SwerveConstants.driverYAxis),
-      () -> -joystick.getRawAxis(SwerveConstants.driverXAxis),
-      () -> -joystick.getRawAxis(SwerveConstants.driverRotAxis),
-      () -> joystick.getRawAxis(SwerveConstants.sliderAxis),
-      () -> !joystick.getRawButton(SwerveConstants.strafeOnlyButtonIndex),
-      () -> !joystick.getRawButton(SwerveConstants.invertedButtonIndex)));
+      () -> controller.getRawAxis(1), //left joystick y
+      () -> -controller.getRawAxis(0), //left joystick x 
+      () -> -controller.getRawAxis(4), //right joystick x
+      () -> controller.getRawAxis(3), //right trigger (for slider functonality)
+      () -> controller.getRawButton(6), //right bumper (strafe only)
+      () -> controller.getRawButton(5))); //left bumper (invert)
       
     configureBindings();
 
