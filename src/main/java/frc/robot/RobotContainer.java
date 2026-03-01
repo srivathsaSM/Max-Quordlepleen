@@ -40,8 +40,8 @@ public class RobotContainer {
       () -> -controller.getRawAxis(0), //left joystick x 
       () -> -controller.getRawAxis(4), //right joystick x
       () -> controller.getRawAxis(3), //right trigger (for slider functonality)
-      () -> controller.getRawButton(6), //right bumper (strafe only)
-      () -> controller.getRawButton(5))); //left bumper (invert)
+      () -> !controller.getRawButton(6), //right bumper (strafe only)
+      () -> !controller.getRawButton(5))); //left bumper (invert)
       
     configureBindings();
 
