@@ -11,6 +11,33 @@ public class Constants {
 
     public static final double rotToRad = 2 * Math.PI;
 
+    public class CollectorConstants {
+        //collector bindings
+        public static final int collectButtonIndex = 12;
+
+        //motor controller and encoder IDs
+        public static final int tiltMotorID = 0;
+        public static final int rollerMotorID = 0;
+        public static final int tiltThruBoreEncoderID = 0;
+
+        //inversions
+        public static final boolean tiltInverted = false;
+        public static final boolean rollerInverted = false;
+        public static final boolean tiltThruBoreInverted = false;
+
+        //PID
+        public static final double kPTilt = 1.0;
+        public static final double kItilt = 0.0;
+        public static final double kDTilt = 0.0;
+
+        //Thru Bore Encoder Offsets in rotations
+        public static final double collectorInOffset = 0.0;
+        public static final double collectorOutOffset = 0.0;
+        
+        //roller speed
+        public static final double collectingRollerSpeed = 0.5;
+    }
+
     public class SwerveConstants {
         //control bindings
         public static final int driverXAxis = 0;

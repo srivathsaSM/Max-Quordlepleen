@@ -7,11 +7,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.*;
+import frc.robot.commands.Collect;
 import frc.robot.commands.SwerveJoystick;
+import frc.robot.subsystems.Collector;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class RobotContainer {
   private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
+
+  private final Collector collector = new Collector();
 
   //note: pushing joystick forward is negative y (on the joystick)
   private final Joystick joystick = new Joystick(Constants.kJoystickPort);
@@ -49,9 +53,13 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    //swerve bindings
     new JoystickButton(joystick, SwerveConstants.zeroHeadingButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.zeroHeading()).ignoringDisable(true));
     new JoystickButton(joystick, SwerveConstants.straightenButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.straightenAll()).ignoringDisable(true));
     new JoystickButton(joystick, SwerveConstants.driverFieldOrientedButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(true));
+
+    //collector bindings
+    new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new Collect(collector));
   }
 
   public Command getAutonomousCommand() {
