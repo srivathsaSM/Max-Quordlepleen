@@ -12,6 +12,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CollectorConstants;
 
@@ -79,6 +80,10 @@ public class Collector extends SubsystemBase {
 
   public void setRollerSpeed(double speed) {
     rollerMotor.set(speed);
+  }
+
+  public void putThruBoreReading() {
+    SmartDashboard.putNumber("ThruBoreReading", tiltThruBoreEncoder.get());
   }
 
   public void setTilt(double position) {

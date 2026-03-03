@@ -9,6 +9,8 @@ public class Constants {
     public static final int kJoystickPort = 0;
     public static final int kControllerPort = 1;
 
+    public static final boolean xboxControllerMode = true;
+
     public static final double rotToRad = 2 * Math.PI;
 
     public class CollectorConstants {
@@ -16,8 +18,8 @@ public class Constants {
         public static final int collectButtonIndex = 12;
 
         //motor controller and encoder IDs
-        public static final int tiltMotorID = 0;
-        public static final int rollerMotorID = 0;
+        public static final int tiltMotorID = 11;
+        public static final int rollerMotorID = 9;
         public static final int tiltThruBoreEncoderID = 0;
 
         //inversions
@@ -31,8 +33,8 @@ public class Constants {
         public static final double kDTilt = 0.0;
 
         //Thru Bore Encoder Offsets in rotations
-        public static final double collectorInOffset = 0.0;
-        public static final double collectorOutOffset = 0.0;
+        public static final double collectorInOffset = 0.577339;
+        public static final double collectorOutOffset = 0.082002;
         
         //roller speed
         public static final double collectingRollerSpeed = 0.5;
@@ -44,11 +46,11 @@ public class Constants {
         public static final int driverYAxis = 1;
         public static final int driverRotAxis = 2;
         public static final int sliderAxis = 3;
-        public static final int driverFieldOrientedButtonIndex = 4;
-        public static final int zeroHeadingButtonIndex = 2;
-        public static final int straightenButtonIndex = 6;
-        public static final int strafeOnlyButtonIndex = 9;
-        public static final int invertedButtonIndex = 10;
+        public static final int driverFieldOrientedButtonIndex = 6;
+        public static final int zeroHeadingButtonIndex = 5;
+        public static final int straightenButtonIndex = 11;
+        public static final int strafeOnlyButtonIndex = 3;
+        public static final int invertedButtonIndex = 4;
 
         //swerve module controller and encoder IDs
         public static final int backRightDriveID = 1;

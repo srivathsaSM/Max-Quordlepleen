@@ -17,7 +17,7 @@ public class RobotContainer {
 
   private final Collector collector = new Collector();
 
-  //note: pushing joystick forward is negative y (on the joystick)
+  //note: pushing joystick forward is negative y (on t he joystick)
   private final Joystick joystick = new Joystick(Constants.kJoystickPort);
   private final XboxController controller = new XboxController(Constants.kControllerPort);
 
@@ -27,25 +27,27 @@ public class RobotContainer {
     //to move left, you need to push the joystick to the left, so the yspeed has to be positive when the x of the joystick is negative (left)
     //twist is just twist
     
-    //joystick default command
-    // swerveSubsystem.setDefaultCommand(new SwerveJoystick(
-    //   swerveSubsystem,
-    //   () -> joystick.getRawAxis(SwerveConstants.driverYAxis),
-    //   () -> -joystick.getRawAxis(SwerveConstants.driverXAxis),
-    //   () -> -joystick.getRawAxis(SwerveConstants.driverRotAxis),
-    //   () -> joystick.getRawAxis(SwerveConstants.sliderAxis),
-    //   () -> !joystick.getRawButton(SwerveConstants.strafeOnlyButtonIndex),
-    //   () -> !joystick.getRawButton(SwerveConstants.invertedButtonIndex)));
-
-    //controller
-    swerveSubsystem.setDefaultCommand(new SwerveJoystick(
-      swerveSubsystem,
-      () -> controller.getRawAxis(1), //left joystick y
-      () -> -controller.getRawAxis(0), //left joystick x 
-      () -> -controller.getRawAxis(4), //right joystick x
-      () -> controller.getRawAxis(3), //right trigger (for slider functonality)
-      () -> !controller.getRawButton(6), //right bumper (strafe only)
-      () -> !controller.getRawButton(5))); //left bumper (invert)
+    if (!Constants.xboxControllerMode) {
+      //joystick default command
+      swerveSubsystem.setDefaultCommand(new SwerveJoystick(
+        swerveSubsystem,
+        () -> joystick.getRawAxis(SwerveConstants.driverYAxis),
+        () -> -joystick.getRawAxis(SwerveConstants.driverXAxis),
+        () -> -joystick.getRawAxis(SwerveConstants.driverRotAxis),
+        () -> joystick.getRawAxis(SwerveConstants.sliderAxis),
+        () -> joystick.getRawButton(SwerveConstants.strafeOnlyButtonIndex),
+        () -> joystick.getRawButton(SwerveConstants.invertedButtonIndex)));
+    } else {
+      //controller
+      swerveSubsystem.setDefaultCommand(new SwerveJoystick(
+        swerveSubsystem,
+        () -> controller.getRawAxis(1), //left joystick y
+        () -> -controller.getRawAxis(0), //left joystick x 
+        () -> -controller.getRawAxis(4), //right joystick x
+        () -> controller.getRawAxis(3), //right trigger (for slider functonality)
+        () -> controller.getRawButton(6), //right bumper (strafe only)
+        () -> controller.getRawButton(5))); //left bumper (invert)
+    }
       
     configureBindings();
 
@@ -56,10 +58,14 @@ public class RobotContainer {
     //swerve bindings
     new JoystickButton(joystick, SwerveConstants.zeroHeadingButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.zeroHeading()).ignoringDisable(true));
     new JoystickButton(joystick, SwerveConstants.straightenButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.straightenAll()).ignoringDisable(true));
-    new JoystickButton(joystick, SwerveConstants.driverFieldOrientedButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(true));
+    new JoystickButton(joystick, SwerveConstants.driverFieldOrientedButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(false));
+
+    if (Constants.xboxControllerMode) {
+      new JoystickButton(controller, 1).whileTrue(Commands.runOnce(() -> collector.putThruBoreReading()));
+    }
 
     //collector bindings
-    new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new Collect(collector));
+    //new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new Collect(collector));
   }
 
   public Command getAutonomousCommand() {
