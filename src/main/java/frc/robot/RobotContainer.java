@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.*;
 import frc.robot.commands.Collect;
@@ -19,7 +20,7 @@ public class RobotContainer {
 
   //note: pushing joystick forward is negative y (on t he joystick)
   private final Joystick joystick = new Joystick(Constants.kJoystickPort);
-  private final XboxController controller = new XboxController(Constants.kControllerPort);
+  private final CommandXboxController controller = new CommandXboxController(Constants.kControllerPort);
 
   public RobotContainer() {
     //in WPILib, positive x = forward and positive y = left
@@ -38,15 +39,15 @@ public class RobotContainer {
         () -> joystick.getRawButton(SwerveConstants.strafeOnlyButtonIndex),
         () -> joystick.getRawButton(SwerveConstants.invertedButtonIndex)));
     } else {
-      //controller
+      //controller -> getHID gets the underlying xbox controller object in the commandxboxcontroller object
       swerveSubsystem.setDefaultCommand(new SwerveJoystick(
         swerveSubsystem,
-        () -> controller.getRawAxis(1), //left joystick y
-        () -> -controller.getRawAxis(0), //left joystick x 
-        () -> -controller.getRawAxis(4), //right joystick x
-        () -> controller.getRawAxis(3), //right trigger (for slider functonality)
-        () -> controller.getRawButton(6), //right bumper (strafe only)
-        () -> controller.getRawButton(5))); //left bumper (invert)
+        () -> controller.getHID().getRawAxis(1), //left joystick y
+        () -> -controller.getHID().getRawAxis(0), //left joystick x 
+        () -> -controller.getHID().getRawAxis(4), //right joystick x
+        () -> controller.getHID().getRawAxis(3), //right trigger (for slider functonality)
+        () -> controller.getHID().getRawButton(6), //right bumper (strafe only)
+        () -> controller.getHID().getRawButton(5))); //left bumper (invert)
     }
       
     configureBindings();
@@ -55,17 +56,27 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    //swerve bindings
-    new JoystickButton(joystick, SwerveConstants.zeroHeadingButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.zeroHeading()).ignoringDisable(true));
-    new JoystickButton(joystick, SwerveConstants.straightenButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.straightenAll()).ignoringDisable(true));
-    new JoystickButton(joystick, SwerveConstants.driverFieldOrientedButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(false));
+    if (!Constants.xboxControllerMode) { //Joystick Bindings (if not in xbox controller mode)
+      //swerve bindings
+      
+      //NOTE: try false with the ignore disable for the zeroheading and straightenall functions (make changes to the xbox controller ones too if applicable)
+      new JoystickButton(joystick, SwerveConstants.zeroHeadingButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.zeroHeading()).ignoringDisable(true));
+      new JoystickButton(joystick, SwerveConstants.straightenButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.straightenAll()).ignoringDisable(true));
+      new JoystickButton(joystick, SwerveConstants.driverFieldOrientedButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(false));
 
-    if (Constants.xboxControllerMode) {
-      new JoystickButton(controller, 1).whileTrue(Commands.runOnce(() -> collector.putThruBoreReading()));
+      //collector bindings
+      new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new Collect(collector));
+    } else { //Xbox Controller Bindings (if in xbox controller mode)
+      //d-pad controls: up = 0 degrees, right = 90 degrees, down = 180 degrees, left = 270 degrees, unpressed = -1 degrees
+
+      //swerve bindings
+      new JoystickButton(controller.getHID(), 4).whileTrue(Commands.runOnce(() -> swerveSubsystem.zeroHeading()).ignoringDisable(true)); //Y button
+      new JoystickButton(controller.getHID(), 3).whileTrue(Commands.runOnce(() -> swerveSubsystem.straightenAll()).ignoringDisable(true)); //X button
+      new JoystickButton(controller.getHID(), 1).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(false)); //A button
+
+      //collector bindings
+      controller.povUp().whileTrue(new Collect(collector)); //dpad up for the collect command
     }
-
-    //collector bindings
-    //new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new Collect(collector));
   }
 
   public Command getAutonomousCommand() {
