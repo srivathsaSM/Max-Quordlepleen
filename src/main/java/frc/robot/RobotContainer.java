@@ -1,7 +1,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -66,6 +65,7 @@ public class RobotContainer {
 
       //collector bindings
       new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new Collect(collector));
+
     } else { //Xbox Controller Bindings (if in xbox controller mode)
       //d-pad controls: up = 0 degrees, right = 90 degrees, down = 180 degrees, left = 270 degrees, unpressed = -1 degrees
 
@@ -75,7 +75,8 @@ public class RobotContainer {
       new JoystickButton(controller.getHID(), 1).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(false)); //A button
 
       //collector bindings
-      controller.povUp().whileTrue(new Collect(collector)); //dpad up for the collect command
+      new JoystickButton(controller.getHID(), 2).whileTrue(new Collect(collector)); //b button for collect
+      //controller.povUp().whileTrue(new Collect(collector)); //dpad up for the collect command
     }
   }
 

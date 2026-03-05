@@ -15,12 +15,15 @@ public class Constants {
 
     public class CollectorConstants {
         //collector bindings
-        public static final int collectButtonIndex = 12;
+        public static final int collectButtonIndex = 11;
 
         //motor controller and encoder IDs
         public static final int tiltMotorID = 11;
         public static final int rollerMotorID = 9;
         public static final int tiltThruBoreEncoderID = 0;
+
+        //Collector Beam Break
+        public static final int collectorBeamBreakID = 1;
 
         //inversions
         public static final boolean tiltInverted = false;
@@ -28,16 +31,20 @@ public class Constants {
         public static final boolean tiltThruBoreInverted = false;
 
         //PID
-        public static final double kPTilt = 1.0;
+        public static final double kPTilt = 0.5;
         public static final double kItilt = 0.0;
         public static final double kDTilt = 0.0;
 
         //Thru Bore Encoder Offsets in rotations
-        public static final double collectorInOffset = 0.577339;
-        public static final double collectorOutOffset = 0.082002;
+        public static final double collectorInOffset = 0.5813;
+        public static final double collectorOutOffset = 0.11;
         
         //roller speed
         public static final double collectingRollerSpeed = 0.5;
+
+        //gear ratios
+        public static final double tiltGearRatio = 25.0/1.0;
+        public static final double rotationGearRatio = 5.0/1.0;
     }
 
     public class SwerveConstants {

@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.CollectorConstants;
 import frc.robot.subsystems.Collector;
@@ -17,14 +18,23 @@ public class Collect extends Command {
 
   @Override
   public void execute() {
-    collector.putCollectorOut();
-    collector.setRollerSpeed(CollectorConstants.collectingRollerSpeed);
+    SmartDashboard.putBoolean("Running Collector", true);
+    if (!collector.isNotePresent()) {
+      collector.putCollectorOut();
+      collector.setRollerSpeed(CollectorConstants.collectingRollerSpeed);
+    } else {
+      collector.putCollectorIn();
+      collector.setRollerSpeed(0.0);
+    }
+    // collector.putCollectorOut();
+    // collector.setRollerSpeed(CollectorConstants.collectingRollerSpeed);
   }
 
   @Override
   public void end(boolean interrupted) {
     collector.putCollectorIn();
-    collector.stopEverything();
+    collector.setRollerSpeed(0.0);
+    SmartDashboard.putBoolean("Running Collector", false);
   }
 
   @Override

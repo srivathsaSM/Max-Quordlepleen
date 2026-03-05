@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -11,6 +12,7 @@ import com.revrobotics.spark.config.SoftLimitConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,6 +27,8 @@ public class Collector extends SubsystemBase {
   
   public final DutyCycleEncoder tiltThruBoreEncoder;
 
+  public final DigitalInput collectorBeamBreak;
+
   public Collector() {
     //instantiating motor controllers
     tiltMotor = new SparkMax(CollectorConstants.tiltMotorID, MotorType.kBrushless);
@@ -35,19 +39,25 @@ public class Collector extends SubsystemBase {
 
     tiltThruBoreEncoder = new DutyCycleEncoder(CollectorConstants.tiltThruBoreEncoderID);
 
+    //instantiating beam break
+    collectorBeamBreak = new DigitalInput(CollectorConstants.collectorBeamBreakID);
+
     //tilt config
     SparkMaxConfig tiltConfig = new SparkMaxConfig();
     tiltConfig.inverted(CollectorConstants.tiltInverted);
     tiltConfig.idleMode(IdleMode.kBrake);
     tiltConfig.closedLoop.pid(CollectorConstants.kPTilt, CollectorConstants.kItilt, CollectorConstants.kDTilt);
     tiltConfig.closedLoop.positionWrappingEnabled(false);
+    tiltConfig.encoder.positionConversionFactor(1.0/CollectorConstants.tiltGearRatio);
+    tiltConfig.encoder.velocityConversionFactor(1.0/(60.0 * CollectorConstants.tiltGearRatio));
+    tiltConfig.closedLoop.allowedClosedLoopError(0.01, ClosedLoopSlot.kSlot0);
 
     //soft limit config for tilt
     SoftLimitConfig tiltLimit = new SoftLimitConfig();
     tiltLimit.forwardSoftLimitEnabled(true);
     tiltLimit.reverseSoftLimitEnabled(true);
-    tiltLimit.forwardSoftLimit(CollectorConstants.collectorOutOffset);
-    tiltLimit.reverseSoftLimit(CollectorConstants.collectorInOffset);
+    tiltLimit.forwardSoftLimit(CollectorConstants.collectorInOffset);
+    tiltLimit.reverseSoftLimit(CollectorConstants.collectorOutOffset);
     tiltConfig.apply(tiltLimit);
 
     tiltMotor.configure(tiltConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -61,6 +71,8 @@ public class Collector extends SubsystemBase {
     
     //Thru Bore Encoder Config
     tiltThruBoreEncoder.setInverted(CollectorConstants.tiltThruBoreInverted);
+
+    resetEncoders();
   }
 
   public void resetEncoders() {
@@ -106,6 +118,19 @@ public class Collector extends SubsystemBase {
     tiltMotor.set(0);
   }
 
+  public boolean isNotePresent() {
+    //returns false when beam is broken
+    return collectorBeamBreak.get();
+  }
+
   @Override
-  public void periodic() {}
+  public void periodic() {
+    SmartDashboard.putNumber("Tilt Motor Pos: ", tiltMotor.getEncoder().getPosition());
+    SmartDashboard.putNumber("Thru Bore Pos: ", tiltThruBoreEncoder.get());
+    if (collectorBeamBreak.get()) {
+      SmartDashboard.putBoolean("Collector BB Intercepted", true);
+    } else {
+      SmartDashboard.putBoolean("Collector BB Intercepted", false);
+    }
+  }
 }
