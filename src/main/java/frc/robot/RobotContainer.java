@@ -4,18 +4,24 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.*;
 import frc.robot.commands.Collect;
+import frc.robot.commands.Load;
+import frc.robot.commands.Shoot;
 import frc.robot.commands.SwerveJoystick;
 import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class RobotContainer {
   private final SwerveSubsystem swerveSubsystem = new SwerveSubsystem();
 
   private final Collector collector = new Collector();
+
+  private final Shooter shooter = new Shooter();
 
   //note: pushing joystick forward is negative y (on t he joystick)
   private final Joystick joystick = new Joystick(Constants.kJoystickPort);
@@ -61,10 +67,16 @@ public class RobotContainer {
       //NOTE: try false with the ignore disable for the zeroheading and straightenall functions (make changes to the xbox controller ones too if applicable)
       new JoystickButton(joystick, SwerveConstants.zeroHeadingButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.zeroHeading()).ignoringDisable(true));
       new JoystickButton(joystick, SwerveConstants.straightenButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.straightenAll()).ignoringDisable(true));
-      new JoystickButton(joystick, SwerveConstants.driverFieldOrientedButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(false));
+      new JoystickButton(joystick, SwerveConstants.driverFieldOrientedButtonIndex).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(true));
 
       //collector bindings
-      new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new Collect(collector));
+      new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new SequentialCommandGroup(
+        new Collect(collector),
+        new Load(shooter, collector)
+      ));
+
+      //shooter bindings
+      new JoystickButton(joystick, ShooterConstants.shootButtonIndex).whileTrue(new Shoot(shooter));
 
     } else { //Xbox Controller Bindings (if in xbox controller mode)
       //d-pad controls: up = 0 degrees, right = 90 degrees, down = 180 degrees, left = 270 degrees, unpressed = -1 degrees
@@ -72,11 +84,16 @@ public class RobotContainer {
       //swerve bindings
       new JoystickButton(controller.getHID(), 4).whileTrue(Commands.runOnce(() -> swerveSubsystem.zeroHeading()).ignoringDisable(true)); //Y button
       new JoystickButton(controller.getHID(), 3).whileTrue(Commands.runOnce(() -> swerveSubsystem.straightenAll()).ignoringDisable(true)); //X button
-      new JoystickButton(controller.getHID(), 1).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(false)); //A button
+      new JoystickButton(controller.getHID(), 1).whileTrue(Commands.runOnce(() -> swerveSubsystem.toggleFieldOriented()).ignoringDisable(true)); //A button
 
       //collector bindings
-      new JoystickButton(controller.getHID(), 2).whileTrue(new Collect(collector)); //b button for collect
-      //controller.povUp().whileTrue(new Collect(collector)); //dpad up for the collect command
+      controller.povUp().whileTrue(new SequentialCommandGroup( //dpad up to collect and then load
+        new Collect(collector),
+        new Load(shooter, collector)
+      ));
+
+      //shooter bindings
+      controller.povRight().whileTrue(new Shoot(shooter)); //dpad right to shoot @ rpm in constants
     }
   }
 

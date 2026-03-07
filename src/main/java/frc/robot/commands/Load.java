@@ -1,16 +1,19 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.CollectorConstants;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.Collector;
+import frc.robot.subsystems.Shooter;
 
-public class Collect extends Command {
+public class Load extends Command {
   private final Collector collector;
-  
-  public Collect(Collector collector) {
+  private final Shooter shooter;
+
+  public Load(Shooter shooter, Collector collector) {
+    this.shooter = shooter;
     this.collector = collector;
-    addRequirements(collector);
+    addRequirements(shooter, collector);
   }
 
   @Override
@@ -18,26 +21,24 @@ public class Collect extends Command {
 
   @Override
   public void execute() {
-    SmartDashboard.putBoolean("Running Collector", true);
-    if (!collector.isNotePresent()) {
-      collector.putCollectorOut();
-      collector.setRollerSpeed(CollectorConstants.collectingRollerSpeed);
+    if (!shooter.isNotePresent()) {
+      collector.setRollerSpeed(CollectorConstants.collectorLoadingSpeed);
+      shooter.runIndexer(ShooterConstants.indexerSpeed);
     } else {
-      collector.putCollectorIn();
       collector.setRollerSpeed(0.0);
+      shooter.runIndexer(0.0);
     }
   }
 
   @Override
   public void end(boolean interrupted) {
-    collector.putCollectorIn();
     collector.setRollerSpeed(0.0);
-    SmartDashboard.putBoolean("Running Collector", false);
+    shooter.runIndexer(0.0);
   }
 
   @Override
   public boolean isFinished() {
-    if (collector.isNotePresent()) {
+    if (shooter.isNotePresent()) {
       return true;
     }
     return false;

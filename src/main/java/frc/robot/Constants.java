@@ -13,6 +13,38 @@ public class Constants {
 
     public static final double rotToRad = 2 * Math.PI;
 
+    public static final boolean tuningMode = true;
+
+    public class ShooterConstants {
+        //shooter bindings
+        public static final int shootButtonIndex = 12;
+        
+        //motor IDs
+        public static final int shooterUpperID = 14;
+        public static final int shooterLowerID = 13;
+        public static final int indexerID = 16;
+
+        //beam break ID
+        public static final int indexBeamBreakID = 2;
+
+        //indexer gear ratio
+        public static final double indexerGearRatio = 16.0/1.0;
+
+        //RPMS
+        public static final double shooterRPM = 1000;
+        public static final double indexerSpeed = 0.5;
+        
+        //Shooter PID
+        public static final double kPShoot = 0.2;
+        public static final double kIShoot = 0.0;
+        public static final double kDShoot = 0.0;
+
+        //inversions
+        public static final boolean upperInverted = false;
+        public static final boolean lowerInverted = true;
+        public static final boolean indexerInverted = false;
+    }
+
     public class CollectorConstants {
         //collector bindings
         public static final int collectButtonIndex = 11;
@@ -41,6 +73,7 @@ public class Constants {
         
         //roller speed
         public static final double collectingRollerSpeed = 0.5;
+        public static final double collectorLoadingSpeed = -0.5;
 
         //gear ratios
         public static final double tiltGearRatio = 25.0/1.0;
