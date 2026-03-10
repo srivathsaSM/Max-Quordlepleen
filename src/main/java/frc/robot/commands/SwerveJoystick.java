@@ -72,7 +72,7 @@ public class SwerveJoystick extends Command {
     rotSpeed = rotLimiter.calculate(rotSpeed) * SwerveConstants.maxAngularSpeedRadPerSec * sliderValue;
 
     //snakeMode
-    double snakeAngle = Math.atan2(-xSpeed,ySpeed) - (Math.PI/2); //subtract pi/2 because 0 on the robot is technically pi/2 on the unit circle
+    double snakeAngle = Math.atan2(-xSpeed,ySpeed) + (Math.PI/2); //add pi/2 because 0 on the robot is technically pi/2 on the unit circle
     double snakeRotSpeed = wpiPidController.calculate(swerveSubsystem.getHeading(),snakeAngle);
 
     if (snakeMode.getAsBoolean()) {
