@@ -31,7 +31,7 @@ public class Constants {
         public static final double indexerGearRatio = 16.0/1.0;
 
         //RPMS
-        public static final double shooterRPM = 1000;
+        public static final double shooterRPM = 2000;
         public static final double indexerSpeed = 0.5;
         
         //Shooter PID
@@ -91,6 +91,7 @@ public class Constants {
         public static final int straightenButtonIndex = 11;
         public static final int strafeOnlyButtonIndex = 3;
         public static final int invertedButtonIndex = 4;
+        public static final int snakeModeButtonIndex = 10;
 
         //swerve module controller and encoder IDs
         public static final int backRightDriveID = 1;

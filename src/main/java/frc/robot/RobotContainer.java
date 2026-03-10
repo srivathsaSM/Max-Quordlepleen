@@ -42,7 +42,8 @@ public class RobotContainer {
         () -> -joystick.getRawAxis(SwerveConstants.driverRotAxis),
         () -> joystick.getRawAxis(SwerveConstants.sliderAxis),
         () -> joystick.getRawButton(SwerveConstants.strafeOnlyButtonIndex),
-        () -> joystick.getRawButton(SwerveConstants.invertedButtonIndex)));
+        () -> joystick.getRawButton(SwerveConstants.invertedButtonIndex),
+        () -> joystick.getRawButton(SwerveConstants.snakeModeButtonIndex)));
     } else {
       //controller -> getHID gets the underlying xbox controller object in the commandxboxcontroller object
       swerveSubsystem.setDefaultCommand(new SwerveJoystick(
@@ -52,7 +53,8 @@ public class RobotContainer {
         () -> -controller.getHID().getRawAxis(4), //right joystick x
         () -> controller.getHID().getRawAxis(3), //right trigger (for slider functonality)
         () -> controller.getHID().getRawButton(6), //right bumper (strafe only)
-        () -> controller.getHID().getRawButton(5))); //left bumper (invert)
+        () -> controller.getHID().getRawButton(5), //left bumper (invert)
+        () -> controller.getHID().getRawButton(10))); //right stick clicked down (snakeMode)
     }
       
     configureBindings();
