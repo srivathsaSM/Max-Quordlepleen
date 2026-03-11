@@ -33,7 +33,9 @@ public class SwerveJoystick extends Command {
     this.xLimiter = new SlewRateLimiter(SwerveConstants.driveMaxAccel);
     this.yLimiter = new SlewRateLimiter(SwerveConstants.driveMaxAccel);
     this.rotLimiter = new SlewRateLimiter(SwerveConstants.angularMaxAccel);
-    this.wpiPidController = new PIDController(SwerveConstants.kPRotation, SwerveConstants.kIRotation, SwerveConstants.kDRotation);
+    this.wpiPidController = new PIDController(SwerveConstants.kPSnake, SwerveConstants.kISnake, SwerveConstants.kDSnake);
+    wpiPidController.enableContinuousInput(0, 2 * Math.PI);;
+    //wpiPidController.setTolerance(0.05);
     addRequirements(swerveSubsystem);
   }
 
@@ -72,8 +74,10 @@ public class SwerveJoystick extends Command {
     rotSpeed = rotLimiter.calculate(rotSpeed) * SwerveConstants.maxAngularSpeedRadPerSec * sliderValue;
 
     //snakeMode
-    double snakeAngle = Math.atan2(-xSpeed,ySpeed) + (Math.PI/2); //add pi/2 because 0 on the robot is technically pi/2 on the unit circle
-    double snakeRotSpeed = wpiPidController.calculate(swerveSubsystem.getHeading(),snakeAngle);
+    double snakeAngle = Math.atan2(-xSpdFunction.getAsDouble(),-ySpdFunction.getAsDouble()) - (Math.PI/2);
+
+    double snakeRotSpeed = wpiPidController.calculate(swerveSubsystem.getRotation2d().getRadians(),snakeAngle);
+    snakeRotSpeed = rotLimiter.calculate(snakeRotSpeed) * SwerveConstants.maxAngularSpeedRadPerSec;
 
     if (snakeMode.getAsBoolean()) {
       swerveSubsystem.drive(xSpeed, ySpeed, snakeRotSpeed, true);
@@ -84,6 +88,10 @@ public class SwerveJoystick extends Command {
     } else {
       swerveSubsystem.drive(xSpeed, ySpeed, rotSpeed, swerveSubsystem.isFieldOriented);
     }
+
+    SmartDashboard.putBoolean("SnakeMode", snakeMode.getAsBoolean());
+    SmartDashboard.putNumber("Snake Angle", snakeAngle);
+    SmartDashboard.putNumber("Robot Heading Rad", swerveSubsystem.getRotation2d().getRadians());
   }
 
   @Override

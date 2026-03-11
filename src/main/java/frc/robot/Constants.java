@@ -139,6 +139,11 @@ public class Constants {
         public static final double kIRotation = 0;
         public static final double kDRotation = 0;
 
+        //Snake Mode PID
+        public static final double kPSnake = 0.2;
+        public static final double kISnake = 0.0;
+        public static final double kDSnake = 0.0;
+
         //Drive Motor FeedForwards
         public static final double kSDrive = 0.2;
         public static final double kVDrive = 2.5;
