@@ -140,7 +140,7 @@ public class Constants {
         public static final double kDRotation = 0;
 
         //Snake Mode PID
-        public static final double kPSnake = 0.2;
+        public static final double kPSnake = 0.3;
         public static final double kISnake = 0.0;
         public static final double kDSnake = 0.0;
 
