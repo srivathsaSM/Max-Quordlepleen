@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.*;
@@ -74,6 +75,7 @@ public class RobotContainer {
       //collector bindings
       new JoystickButton(joystick, CollectorConstants.collectButtonIndex).whileTrue(new SequentialCommandGroup(
         new Collect(collector),
+        new WaitCommand(1.5),
         new Load(shooter, collector)
       ));
 
@@ -91,6 +93,7 @@ public class RobotContainer {
       //collector bindings
       controller.povUp().whileTrue(new SequentialCommandGroup( //dpad up to collect and then load
         new Collect(collector),
+        new WaitCommand(1.5),
         new Load(shooter, collector)
       ));
 

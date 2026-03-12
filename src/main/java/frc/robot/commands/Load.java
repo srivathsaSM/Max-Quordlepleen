@@ -21,13 +21,13 @@ public class Load extends Command {
 
   @Override
   public void execute() {
-    if (!shooter.isNotePresent()) {
-      collector.setRollerSpeed(CollectorConstants.collectorLoadingSpeed);
-      shooter.runIndexer(ShooterConstants.indexerSpeed);
-    } else {
-      collector.setRollerSpeed(0.0);
-      shooter.runIndexer(0.0);
-    }
+      if (!shooter.isNotePresent()) {
+        collector.setRollerSpeed(CollectorConstants.collectorLoadingSpeed);
+        shooter.runIndexer(ShooterConstants.indexerSpeed);
+      } else {
+        collector.setRollerSpeed(0.0);
+        shooter.runIndexer(0.0);
+      }
   }
 
   @Override

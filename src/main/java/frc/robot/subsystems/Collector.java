@@ -80,14 +80,16 @@ public class Collector extends SubsystemBase {
     rollerEncoder.setPosition(0.0);
   }
 
-  public void putCollectorIn() {
+  public boolean putCollectorIn() {
     SparkClosedLoopController tiltController = tiltMotor.getClosedLoopController();
     tiltController.setSetpoint(CollectorConstants.collectorInOffset, ControlType.kPosition);
+    return tiltController.isAtSetpoint();
   }
 
-  public void putCollectorOut() {
+  public boolean putCollectorOut() {
     SparkClosedLoopController tiltController = tiltMotor.getClosedLoopController();
     tiltController.setSetpoint(CollectorConstants.collectorOutOffset, ControlType.kPosition);
+    return tiltController.isAtSetpoint();
   }
 
   public void setRollerSpeed(double speed) {
@@ -103,6 +105,10 @@ public class Collector extends SubsystemBase {
       SparkClosedLoopController tiltController = tiltMotor.getClosedLoopController();
       tiltController.setSetpoint(position, ControlType.kPosition);
     }
+  }
+
+  public boolean isAtSetpoint() {
+    return tiltMotor.getClosedLoopController().isAtSetpoint();
   }
 
   public void stopEverything() {
