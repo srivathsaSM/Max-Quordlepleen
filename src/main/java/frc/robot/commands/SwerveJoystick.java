@@ -75,15 +75,15 @@ public class SwerveJoystick extends Command {
     rotSpeed = rotLimiter.calculate(rotSpeed) * SwerveConstants.maxAngularSpeedRadPerSec * sliderValue;
 
     //snakeMode
-    Rotation2d snakeAngle = new Rotation2d(-ySpdFunction.getAsDouble(), -xSpdFunction.getAsDouble());
+    Rotation2d snakeAngle = new Rotation2d(ySpdFunction.getAsDouble(), -xSpdFunction.getAsDouble());
     double snakeRotSpeed = 0;
     if (Math.abs(Math.hypot(-ySpdFunction.getAsDouble(), -xSpdFunction.getAsDouble())) > 0.05) { //deadband
-      snakeRotSpeed = wpiPidController.calculate(swerveSubsystem.getRotation2d().getRadians(),snakeAngle.getRadians() - Math.PI);
+      snakeRotSpeed = wpiPidController.calculate(swerveSubsystem.getRotation2d().getRadians(),snakeAngle.getRadians() - (Math.PI/2));
     }
-    //snakeRotSpeed = rotLimiter.calculate(snakeRotSpeed) * SwerveConstants.maxAngularSpeedRadPerSec;
+    snakeRotSpeed *= SwerveConstants.maxAngularSpeedRadPerSec;
 
     if (snakeMode.getAsBoolean()) {
-      swerveSubsystem.drive(xSpeed, ySpeed, snakeRotSpeed, true);
+      swerveSubsystem.drive(xSpeed, ySpeed, -snakeRotSpeed, true);
     } else if (inverted.getAsBoolean()) {
       swerveSubsystem.drive(-xSpeed, ySpeed, -rotSpeed, swerveSubsystem.isFieldOriented);
     } else if (strafeOnly.getAsBoolean()) {

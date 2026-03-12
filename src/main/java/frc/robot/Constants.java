@@ -135,7 +135,7 @@ public class Constants {
         public static final boolean backLeftRotReversed = false;
 
         //Swerve RotationPID
-        public static final double kPRotation = 0.2;
+        public static final double kPRotation = 1;
         public static final double kIRotation = 0;
         public static final double kDRotation = 0;
 
