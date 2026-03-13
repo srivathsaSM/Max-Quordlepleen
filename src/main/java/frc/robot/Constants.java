@@ -8,6 +8,7 @@ import edu.wpi.first.math.util.Units;
 public class Constants {
     public static final int kJoystickPort = 0;
     public static final int kControllerPort = 1;
+    public static final int kSysIdContollerPort = 2;
 
     public static final boolean xboxControllerMode = true;
 

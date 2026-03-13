@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -13,9 +14,15 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ShooterConstants;
 
 public class Shooter extends SubsystemBase {
@@ -29,6 +36,16 @@ public class Shooter extends SubsystemBase {
   private final RelativeEncoder shooterLowerEncoder;
 
   private final DigitalInput indexBeamBreak;
+
+  private final SysIdRoutine routine = new SysIdRoutine(
+    new SysIdRoutine.Config(
+      null, 
+      Units.Volts.of(4),
+      null,
+      (state) -> SignalLogger.writeString("state", state.toString())
+    ),
+    new SysIdRoutine.Mechanism(this::setVoltageBoth, null, this)
+  );
 
   public Shooter() {
     shooterUpperMotor = new SparkFlex(ShooterConstants.shooterUpperID, MotorType.kBrushless);
@@ -110,6 +127,27 @@ public class Shooter extends SubsystemBase {
   public void stopShooter() {
     shooterLowerMotor.set(0);
     shooterUpperMotor.set(0);
+  }
+
+  public void setVoltageUpper(Voltage voltage) {
+    shooterUpperMotor.setVoltage(voltage);
+  }
+
+  public void setVoltageLower(Voltage voltage) {
+    shooterLowerMotor.setVoltage(voltage);
+  }
+
+  public void setVoltageBoth(Voltage voltage) {
+    setVoltageUpper(voltage);
+    setVoltageLower(voltage);
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return routine.quasistatic(direction);
+  }
+
+  public Command sysIdDyanamic(SysIdRoutine.Direction direction) {
+    return routine.dynamic(direction);
   }
 
   @Override

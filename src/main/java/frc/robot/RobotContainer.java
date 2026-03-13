@@ -1,6 +1,9 @@
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -8,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.*;
 import frc.robot.commands.Collect;
 import frc.robot.commands.Load;
@@ -27,6 +31,7 @@ public class RobotContainer {
   //note: pushing joystick forward is negative y (on t he joystick)
   private final Joystick joystick = new Joystick(Constants.kJoystickPort);
   private final CommandXboxController controller = new CommandXboxController(Constants.kControllerPort);
+  private final CommandXboxController sysIdController = new CommandXboxController(Constants.kSysIdContollerPort);
 
   public RobotContainer() {
     //in WPILib, positive x = forward and positive y = left
@@ -100,6 +105,22 @@ public class RobotContainer {
       //shooter bindings
       controller.povRight().whileTrue(new Shoot(shooter)); //dpad right to shoot @ rpm in constants
     }
+
+    //SysID Contollr Bindings
+    sysIdController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    sysIdController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+
+    /*
+     * Joystick Y = quasistatic forward
+     * Joystick A = quasistatic backward
+     * Joystick B = dynamic forward
+     * Joystick X = dynamcic reverse
+     */
+
+    sysIdController.y().whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    sysIdController.a().whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    sysIdController.b().whileTrue(shooter.sysIdDyanamic(SysIdRoutine.Direction.kForward));
+    sysIdController.x().whileTrue(shooter.sysIdDyanamic(SysIdRoutine.Direction.kReverse));
   }
 
   public Command getAutonomousCommand() {
