@@ -34,6 +34,8 @@ public class RobotContainer {
   private final CommandXboxController sysIdController = new CommandXboxController(Constants.kSysIdContollerPort);
 
   public RobotContainer() {
+    //SignalLogger.setPath("/media/sda1/");
+  
     //in WPILib, positive x = forward and positive y = left
     //to move forward, you need to push the joystick forward, so the xspeed has to be positive when the Y of the joystick is negative (forward)
     //to move left, you need to push the joystick to the left, so the yspeed has to be positive when the x of the joystick is negative (left)
@@ -107,8 +109,10 @@ public class RobotContainer {
     }
 
     //SysID Contollr Bindings
-    sysIdController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
-    sysIdController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
+    // new JoystickButton(sysIdController.getHID(),5).onTrue(Commands.runOnce(SignalLogger::start)); //left bumper
+    // new JoystickButton(sysIdController.getHID(),6).onTrue(Commands.runOnce(SignalLogger::stop)); //right bumper
+    // sysIdController.leftBumper().onTrue(Commands.runOnce(SignalLogger::start));
+    // sysIdController.rightBumper().onTrue(Commands.runOnce(SignalLogger::stop));
 
     /*
      * Joystick Y = quasistatic forward
@@ -117,10 +121,14 @@ public class RobotContainer {
      * Joystick X = dynamcic reverse
      */
 
-    sysIdController.y().whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    sysIdController.a().whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    sysIdController.b().whileTrue(shooter.sysIdDyanamic(SysIdRoutine.Direction.kForward));
-    sysIdController.x().whileTrue(shooter.sysIdDyanamic(SysIdRoutine.Direction.kReverse));
+    new JoystickButton(sysIdController.getHID(),4).whileTrue(shooter.sysIdQuasistaticUpper(SysIdRoutine.Direction.kForward));
+    new JoystickButton(sysIdController.getHID(),1).whileTrue(shooter.sysIdQuasistaticUpper(SysIdRoutine.Direction.kReverse));
+    new JoystickButton(sysIdController.getHID(),2).whileTrue(shooter.sysIdDyanamicUpper(SysIdRoutine.Direction.kForward));
+    new JoystickButton(sysIdController.getHID(),3).whileTrue(shooter.sysIdDyanamicUpper(SysIdRoutine.Direction.kReverse));
+    // sysIdController.y().whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // sysIdController.a().whileTrue(shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // sysIdController.b().whileTrue(shooter.sysIdDyanamic(SysIdRoutine.Direction.kForward));
+    // sysIdController.x().whileTrue(shooter.sysIdDyanamic(SysIdRoutine.Direction.kReverse));
   }
 
   public Command getAutonomousCommand() {

@@ -1,5 +1,10 @@
 package frc.robot.subsystems;
 
+
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
@@ -15,11 +20,14 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.units.measure.MutAngularVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -37,15 +45,8 @@ public class Shooter extends SubsystemBase {
 
   private final DigitalInput indexBeamBreak;
 
-  private final SysIdRoutine routine = new SysIdRoutine(
-    new SysIdRoutine.Config(
-      null, 
-      Units.Volts.of(4),
-      null,
-      (state) -> SignalLogger.writeString("state", state.toString())
-    ),
-    new SysIdRoutine.Mechanism(this::setVoltageBoth, null, this)
-  );
+  private final SysIdRoutine upperRoutine;
+  private final SysIdRoutine lowerRoutine;
 
   public Shooter() {
     shooterUpperMotor = new SparkFlex(ShooterConstants.shooterUpperID, MotorType.kBrushless);
@@ -83,6 +84,30 @@ public class Shooter extends SubsystemBase {
     indexerMotor.configure(indexerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     resetEncoders();
+
+    upperRoutine = new SysIdRoutine(
+      new SysIdRoutine.Config(),
+      new SysIdRoutine.Mechanism(this::setVoltageUpper,
+      log -> {
+        log.motor("Upper Flywheel")
+          .voltage(Volts.of(shooterUpperMotor.getAppliedOutput() * shooterUpperMotor.getBusVoltage()))
+          .angularPosition(Angle.ofBaseUnits(getUpperPosition(), Rotations))
+          .angularVelocity(AngularVelocity.ofBaseUnits(getUpperShooterVelocity(), RPM));
+      },
+      this)
+    );
+
+    lowerRoutine = new SysIdRoutine(
+      new SysIdRoutine.Config(),
+      new SysIdRoutine.Mechanism(this::setVoltageLower,
+      log -> {
+        log.motor("Lower Flywheel")
+          .voltage(Volts.of(shooterLowerMotor.getAppliedOutput()*shooterLowerMotor.getBusVoltage()))
+          .angularPosition(Angle.ofBaseUnits(getLowerPosition(), Rotations))
+          .angularVelocity(AngularVelocity.ofBaseUnits(getLowerShooterVelocity(), RPM));
+      },
+      this)
+    );
   }
 
   public void resetEncoders() {
@@ -100,6 +125,14 @@ public class Shooter extends SubsystemBase {
 
   public void runIndexer(double speed) {
     indexerMotor.set(speed);
+  }
+
+  public double getUpperPosition() {
+    return shooterUpperEncoder.getPosition();
+  }
+
+  public double getLowerPosition() {
+    return shooterLowerEncoder.getPosition();
   }
 
   public double getUpperShooterVelocity() {
@@ -142,12 +175,20 @@ public class Shooter extends SubsystemBase {
     setVoltageLower(voltage);
   }
 
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return routine.quasistatic(direction);
+  public Command sysIdQuasistaticUpper(SysIdRoutine.Direction direction) {
+    return upperRoutine.quasistatic(direction);
   }
 
-  public Command sysIdDyanamic(SysIdRoutine.Direction direction) {
-    return routine.dynamic(direction);
+  public Command sysIdDyanamicUpper(SysIdRoutine.Direction direction) {
+    return upperRoutine.dynamic(direction);
+  }
+
+  public Command sysIdQuasistaticLower(SysIdRoutine.Direction direction) {
+    return lowerRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamicLower(SysIdRoutine.Direction direction) {
+    return lowerRoutine.dynamic(direction);
   }
 
   @Override
