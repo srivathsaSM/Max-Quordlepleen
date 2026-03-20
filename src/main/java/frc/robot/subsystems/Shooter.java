@@ -5,7 +5,9 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.SignalLogger;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -14,17 +16,14 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.config.FeedForwardConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.MutAngle;
-import edu.wpi.first.units.measure.MutAngularVelocity;
-import edu.wpi.first.units.measure.MutVoltage;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -61,7 +60,8 @@ public class Shooter extends SubsystemBase {
 
     //shooter upper config
     SparkFlexConfig shooterUpperConfig = new SparkFlexConfig();
-    shooterUpperConfig.closedLoop.pid(ShooterConstants.kPShoot, ShooterConstants.kIShoot, ShooterConstants.kDShoot);
+    shooterUpperConfig.closedLoop.pid(ShooterConstants.kPUpper, ShooterConstants.kIUpper, ShooterConstants.kDUpper);
+    shooterUpperConfig.closedLoop.feedForward.kS(ShooterConstants.kSUpper).kV(ShooterConstants.kVUpper).kA(ShooterConstants.kAUpper);
     shooterUpperConfig.inverted(ShooterConstants.upperInverted);
     shooterUpperConfig.idleMode(IdleMode.kCoast);
     shooterUpperConfig.closedLoop.allowedClosedLoopError(50, ClosedLoopSlot.kSlot0);
@@ -69,7 +69,8 @@ public class Shooter extends SubsystemBase {
 
     //shooter lower config
     SparkFlexConfig shooterLowerConfig = new SparkFlexConfig();
-    shooterLowerConfig.apply(shooterUpperConfig);
+    shooterLowerConfig.closedLoop.pid(ShooterConstants.kPLower, ShooterConstants.kILower, ShooterConstants.kDLower);
+    shooterLowerConfig.closedLoop.feedForward.apply(new FeedForwardConfig().sva(ShooterConstants.kSLower, ShooterConstants.kVLower, ShooterConstants.kALower));
     shooterLowerConfig.inverted(ShooterConstants.lowerInverted);
     shooterLowerConfig.idleMode(IdleMode.kCoast);
     shooterLowerConfig.closedLoop.allowedClosedLoopError(50, ClosedLoopSlot.kSlot0);
@@ -79,7 +80,7 @@ public class Shooter extends SubsystemBase {
     SparkMaxConfig indexerConfig = new SparkMaxConfig();
     indexerConfig.idleMode(IdleMode.kBrake);
     indexerConfig.inverted(ShooterConstants.indexerInverted);
-    indexerConfig.encoder.velocityConversionFactor(1.0/ShooterConstants.indexerGearRatio);
+    indexerConfig.encoder.velocityConversionFactor(1.0/ShooterConstants.indexerGearRatio); //native velocity unit -> rpm
     indexerConfig.encoder.positionConversionFactor(1.0/ShooterConstants.indexerGearRatio);
     indexerMotor.configure(indexerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -91,8 +92,8 @@ public class Shooter extends SubsystemBase {
       log -> {
         log.motor("Upper Flywheel")
           .voltage(Volts.of(shooterUpperMotor.getAppliedOutput() * shooterUpperMotor.getBusVoltage()))
-          .angularPosition(Angle.ofBaseUnits(getUpperPosition(), Rotations))
-          .angularVelocity(AngularVelocity.ofBaseUnits(getUpperShooterVelocity(), RPM));
+          .angularPosition(Angle.ofRelativeUnits(getUpperPosition(), Rotations))
+          .angularVelocity(AngularVelocity.ofRelativeUnits(getUpperShooterVelocity(), RPM));
       },
       this)
     );
@@ -103,8 +104,8 @@ public class Shooter extends SubsystemBase {
       log -> {
         log.motor("Lower Flywheel")
           .voltage(Volts.of(shooterLowerMotor.getAppliedOutput()*shooterLowerMotor.getBusVoltage()))
-          .angularPosition(Angle.ofBaseUnits(getLowerPosition(), Rotations))
-          .angularVelocity(AngularVelocity.ofBaseUnits(getLowerShooterVelocity(), RPM));
+          .angularPosition(Angle.ofRelativeUnits(getLowerPosition(), Rotations))
+          .angularVelocity(AngularVelocity.ofRelativeUnits(getLowerShooterVelocity(), RPM));
       },
       this)
     );
@@ -120,6 +121,16 @@ public class Shooter extends SubsystemBase {
     SparkClosedLoopController lowerController = shooterLowerMotor.getClosedLoopController();
 
     upperController.setSetpoint(RPM, ControlType.kVelocity);
+    lowerController.setSetpoint(RPM, ControlType.kVelocity);
+  }
+
+  public void runUpper(double RPM) {
+    SparkClosedLoopController upperController = shooterUpperMotor.getClosedLoopController();
+    upperController.setSetpoint(RPM, ControlType.kVelocity);
+  }
+
+  public void runLower(double RPM) {
+    SparkClosedLoopController lowerController = shooterLowerMotor.getClosedLoopController();
     lowerController.setSetpoint(RPM, ControlType.kVelocity);
   }
 
@@ -162,6 +173,14 @@ public class Shooter extends SubsystemBase {
     shooterUpperMotor.set(0);
   }
 
+  public void stopUpper() {
+    shooterUpperMotor.set(0);
+  }
+
+  public void stopLower() {
+    shooterLowerMotor.set(0);
+  }
+
   public void setVoltageUpper(Voltage voltage) {
     shooterUpperMotor.setVoltage(voltage);
   }
@@ -179,7 +198,7 @@ public class Shooter extends SubsystemBase {
     return upperRoutine.quasistatic(direction);
   }
 
-  public Command sysIdDyanamicUpper(SysIdRoutine.Direction direction) {
+  public Command sysIdDynamicUpper(SysIdRoutine.Direction direction) {
     return upperRoutine.dynamic(direction);
   }
 
@@ -194,5 +213,8 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putBoolean("Load Beam Break: ", isNotePresent());
+
+    Logger.recordOutput("Shooter/UpperRPM", getUpperShooterVelocity(), "RPM");
+    Logger.recordOutput("Shooter/LowerRPM", getLowerShooterVelocity(), "RPM");
   }
 }

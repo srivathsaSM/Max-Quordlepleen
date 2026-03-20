@@ -16,7 +16,8 @@ public class Shoot extends Command {
 
   @Override
   public void execute() {
-    shooter.runShooter(ShooterConstants.shooterRPM);
+    shooter.runUpper(ShooterConstants.fixedShootRPM);
+    shooter.runUpper(ShooterConstants.fixedShootRPM);
     shooter.runIndexer(0.5);
   }
 

@@ -32,13 +32,26 @@ public class Constants {
         public static final double indexerGearRatio = 16.0/1.0;
 
         //RPMS
-        public static final double shooterRPM = 2000;
+        public static final double fixedShootRPM = 1000;
         public static final double indexerSpeed = 0.5;
         
         //Shooter PID
-        public static final double kPShoot = 0.2;
-        public static final double kIShoot = 0.0;
-        public static final double kDShoot = 0.0;
+        public static final double kPUpper = 0.00015;
+        public static final double kIUpper = 0.0;
+        public static final double kDUpper = 0.0;
+
+        public static final double kPLower = 0.00015;
+        public static final double kILower = 0.0;
+        public static final double kDLower = 0.0;
+        
+        //shooter feedforwards
+        public static final double kSUpper = 0.061166;
+        public static final double kVUpper = 0.10683;
+        public static final double kAUpper = 0.017067; 
+
+        public static final double kSLower = 0.0659;
+        public static final double kVLower = 0.10568;
+        public static final double kALower = 0.017013;
 
         //inversions
         public static final boolean upperInverted = false;
