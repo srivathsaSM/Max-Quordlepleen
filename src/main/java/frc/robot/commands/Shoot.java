@@ -17,8 +17,10 @@ public class Shoot extends Command {
   @Override
   public void execute() {
     shooter.runUpper(ShooterConstants.fixedShootRPM);
-    shooter.runUpper(ShooterConstants.fixedShootRPM);
-    shooter.runIndexer(0.5);
+    shooter.runLower(ShooterConstants.fixedShootRPM);
+    if (Math.abs(shooter.upperFromSetpoint()) <= 50 && Math.abs(shooter.lowerFromSetpoint()) <= 50) {
+      shooter.runIndexer(0.5);
+    }
   }
 
   @Override

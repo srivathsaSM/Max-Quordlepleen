@@ -61,10 +61,12 @@ public class Shooter extends SubsystemBase {
     //shooter upper config
     SparkFlexConfig shooterUpperConfig = new SparkFlexConfig();
     shooterUpperConfig.closedLoop.pid(ShooterConstants.kPUpper, ShooterConstants.kIUpper, ShooterConstants.kDUpper);
+    shooterUpperConfig.closedLoop.iZone(200);
     shooterUpperConfig.closedLoop.feedForward.kS(ShooterConstants.kSUpper).kV(ShooterConstants.kVUpper).kA(ShooterConstants.kAUpper);
     shooterUpperConfig.inverted(ShooterConstants.upperInverted);
     shooterUpperConfig.idleMode(IdleMode.kCoast);
     shooterUpperConfig.closedLoop.allowedClosedLoopError(50, ClosedLoopSlot.kSlot0);
+    //shooterUpperConfig.encoder.quadratureMeasurementPeriod(100).quadratureAverageDepth(64); //measures positions every 20ms for velocity calculations (vs 100 default) and uses 16 positions to calculate velocity (vs default 64)
     shooterUpperMotor.configure(shooterUpperConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     //shooter lower config
@@ -120,18 +122,18 @@ public class Shooter extends SubsystemBase {
     SparkClosedLoopController upperController = shooterUpperMotor.getClosedLoopController();
     SparkClosedLoopController lowerController = shooterLowerMotor.getClosedLoopController();
 
-    upperController.setSetpoint(RPM, ControlType.kVelocity);
-    lowerController.setSetpoint(RPM, ControlType.kVelocity);
+    upperController.setSetpoint(RPM * 1.035, ControlType.kVelocity);
+    lowerController.setSetpoint(RPM * 1.035, ControlType.kVelocity);
   }
 
   public void runUpper(double RPM) {
     SparkClosedLoopController upperController = shooterUpperMotor.getClosedLoopController();
-    upperController.setSetpoint(RPM, ControlType.kVelocity);
+    upperController.setSetpoint(RPM * 1.035, ControlType.kVelocity);
   }
 
   public void runLower(double RPM) {
     SparkClosedLoopController lowerController = shooterLowerMotor.getClosedLoopController();
-    lowerController.setSetpoint(RPM, ControlType.kVelocity);
+    lowerController.setSetpoint(RPM * 1.035, ControlType.kVelocity);
   }
 
   public void runIndexer(double speed) {
@@ -152,6 +154,10 @@ public class Shooter extends SubsystemBase {
 
   public double getLowerShooterVelocity() {
     return shooterLowerEncoder.getVelocity();
+  }
+
+  public double getIndexerSpeed() {
+    return indexerMotor.get();
   }
 
   public void stopAll() {
@@ -179,6 +185,14 @@ public class Shooter extends SubsystemBase {
 
   public void stopLower() {
     shooterLowerMotor.set(0);
+  }
+
+  public double upperFromSetpoint() {
+    return shooterUpperMotor.getClosedLoopController().getSetpoint()/1.03 - shooterUpperEncoder.getVelocity();
+  }
+
+  public double lowerFromSetpoint() {
+    return shooterLowerMotor.getClosedLoopController().getSetpoint()/1.03 - shooterLowerEncoder.getVelocity();
   }
 
   public void setVoltageUpper(Voltage voltage) {
@@ -213,6 +227,13 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putBoolean("Load Beam Break: ", isNotePresent());
+
+    SmartDashboard.putNumber("Upper Error", upperFromSetpoint());
+    SmartDashboard.putNumber("Lower Error", lowerFromSetpoint());
+    
+    SmartDashboard.putNumber("Indexer Spd", getIndexerSpeed());
+    SmartDashboard.putNumber("Upper RPM", getUpperShooterVelocity());
+    SmartDashboard.putNumber("Lower RPM", getLowerShooterVelocity());
 
     Logger.recordOutput("Shooter/UpperRPM", getUpperShooterVelocity(), "RPM");
     Logger.recordOutput("Shooter/LowerRPM", getLowerShooterVelocity(), "RPM");

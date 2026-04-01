@@ -103,11 +103,13 @@ public class RobotContainer {
         new Load(shooter, collector)
       ));
 
+      controller.povDown().whileTrue(new Load(shooter, collector));
+
       //shooter bindings
       controller.povRight().whileTrue(new Shoot(shooter)); //dpad right to shoot @ rpm in constants
 
-      controller.povDown().whileTrue(Commands.run(() -> shooter.runLower(ShooterConstants.fixedShootRPM), shooter)).whileFalse(Commands.run(() -> shooter.stopLower(), shooter));
-      controller.povLeft().whileTrue(Commands.run(() -> shooter.runUpper(ShooterConstants.fixedShootRPM), shooter)).whileFalse(Commands.run(() -> shooter.stopUpper(), shooter));
+      // controller.povDown().whileTrue(Commands.run(() -> shooter.runLower(ShooterConstants.fixedShootRPM), shooter)).whileFalse(Commands.run(() -> shooter.stopLower(), shooter));
+      // controller.povLeft().whileTrue(Commands.run(() -> shooter.runUpper(ShooterConstants.fixedShootRPM), shooter)).whileFalse(Commands.run(() -> shooter.stopUpper(), shooter));
     }
 
     /*

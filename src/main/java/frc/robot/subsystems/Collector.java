@@ -71,7 +71,7 @@ public class Collector extends SubsystemBase {
     
     //Thru Bore Encoder Config
     tiltThruBoreEncoder.setInverted(CollectorConstants.tiltThruBoreInverted);
-
+    
     resetEncoders();
   }
 
