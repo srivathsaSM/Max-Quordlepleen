@@ -10,8 +10,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
@@ -23,6 +26,10 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.config.PIDConstants;
 
 public class SwerveSubsystem extends SubsystemBase {
+  private AddressableLED LED = new AddressableLED(3);
+  private AddressableLEDBuffer LEDBuffer = new AddressableLEDBuffer(38);
+  private final LEDPattern rainbow = LEDPattern.rainbow(255,128).scrollAtAbsoluteSpeed(Units.MetersPerSecond.of(0.5), Units.Meters.of(0.76/38));
+
   private final SwerveModule frontLeft = new SwerveModule(
           SwerveConstants.frontLeftDriveID, 
           SwerveConstants.frontLeftRotationID, 
@@ -80,6 +87,10 @@ public class SwerveSubsystem extends SubsystemBase {
       } catch (Exception e) {
       }
     }).start();
+
+    LED.setLength(LEDBuffer.getLength());
+    LED.setData(LEDBuffer);
+    LED.start();
 
     configureAutoBuilder();
   }
@@ -163,7 +174,12 @@ public class SwerveSubsystem extends SubsystemBase {
     odometer.update(getRotation2d(), modulePositions);
 
     SmartDashboard.putNumber("Robot Heading: ", getHeading());
-    // SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+    //SmartDashboard.putString("Robot Location", getPose().getTranslation().toString());
+
+    //update colors in the buffer
+    rainbow.applyTo(LEDBuffer);
+    //push the changes to the LED
+    LED.setData(LEDBuffer);
   }
 
   public void stopModules() {
