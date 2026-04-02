@@ -1,9 +1,13 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -31,6 +35,8 @@ public class RobotContainer {
   private final Joystick joystick = new Joystick(Constants.kJoystickPort);
   private final CommandXboxController controller = new CommandXboxController(Constants.kControllerPort);
   private final CommandXboxController sysIdController = new CommandXboxController(Constants.kSysIdContollerPort);
+
+  private final SendableChooser<Command> autoChooser;
 
   public RobotContainer() {
     //SignalLogger.setPath("/media/sda1/");
@@ -63,10 +69,20 @@ public class RobotContainer {
         () -> controller.getHID().getRawButton(5), //left bumper (invert)
         () -> controller.getHID().getRawButton(10))); //right stick clicked down (snakeMode)
     }
-      
-    configureBindings();
+
+    //register named commands for each subsystem
+    shooter.registerNamedCommands();
+
+    //build auto chooser - you can also set a default
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("AutoChooser", autoChooser);
+
+    //allow viewing of command scheduler queue in dashboards
+    SmartDashboard.putData(CommandScheduler.getInstance());
 
     SmartDashboard.putBoolean("Field Oriented", swerveSubsystem.isFieldOriented);
+      
+    configureBindings();
   }
 
   private void configureBindings() {
@@ -126,6 +142,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return autoChooser.getSelected();
   }
 }

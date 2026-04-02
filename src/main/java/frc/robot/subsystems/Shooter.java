@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Volts;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -31,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.Shoot;
 
 public class Shooter extends SubsystemBase {
 
@@ -222,6 +224,10 @@ public class Shooter extends SubsystemBase {
 
   public Command sysIdDynamicLower(SysIdRoutine.Direction direction) {
     return lowerRoutine.dynamic(direction);
+  }
+
+  public void registerNamedCommands() {
+    NamedCommands.registerCommand("FixedShoot", new Shoot(this));
   }
 
   @Override

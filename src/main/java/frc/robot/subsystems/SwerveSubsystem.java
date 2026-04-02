@@ -80,6 +80,8 @@ public class SwerveSubsystem extends SubsystemBase {
       } catch (Exception e) {
       }
     }).start();
+
+    configureAutoBuilder();
   }
 
   public void zeroHeading() {
@@ -203,32 +205,32 @@ public class SwerveSubsystem extends SubsystemBase {
     setModuleStates(states);
   }
 
-  // public void configureAutoBuilder() {
-  //   System.out.println("Configuring Auto Builder... ");
+  public void configureAutoBuilder() {
+    System.out.println("Configuring Auto Builder... ");
 
-  //   try {
-  //     RobotConfig config = RobotConfig.fromGUISettings();
+    try {
+      RobotConfig config = RobotConfig.fromGUISettings();
 
-  //     //configure autobuilder
-  //     AutoBuilder.configure(
-  //       this::getPose, //robot pose supplier
-  //       this::resetOdometry, //method to reset odometry
-  //       this::getRobotRelativeSpeeds, //robot relative ChassisSpeeds supplier
-  //       (speeds, feedforwards) -> driveRobotRelative(speeds), //drive the robot with chassis speeds and feedforwards
-  //       new PPHolonomicDriveController(
-  //         new PIDConstants(5.0, 0.0, 0.0), //translation PID
-  //         new PIDConstants(5.0, 0.0, 0.0)), //rotation PID
-  //       config, //robotconfig
-  //       () -> {
-  //         var alliance = DriverStation.getAlliance();
-  //         if (alliance.isPresent()) {
-  //           return alliance.get() == DriverStation.Alliance.Red;
-  //         }
-  //         return false;
-  //       },
-  //       this);
-  //   } catch (Exception e) {
-  //     e.printStackTrace();
-  //   }
-  // }
+      //configure autobuilder
+      AutoBuilder.configure(
+        this::getPose, //robot pose supplier
+        this::resetOdometry, //method to reset odometry
+        this::getRobotRelativeSpeeds, //robot relative ChassisSpeeds supplier
+        (speeds) -> driveRobotRelative(speeds), //drive the robot with chassis speeds and feedforwards
+        new PPHolonomicDriveController(
+          new PIDConstants(5.0, 0.0, 0.0), //translation PID
+          new PIDConstants(5.0, 0.0, 0.0)), //rotation PID
+        config, //robotconfig
+        () -> {
+          var alliance = DriverStation.getAlliance();
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          }
+          return false;
+        },
+        this);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 }
